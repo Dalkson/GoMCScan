@@ -32,6 +32,17 @@ var portRange string
 var pool *gopool.GoPool
 
 func main() {
+	flags()
+	fmt.Println(portRange)
+	pool = gopool.NewPool(threads)
+	var a uint8 = 176
+	var b uint8 = 9
+	ports := []uint16{25565}
+	loopBlock(a, b, ports)
+	pool.Wait()
+}
+
+func flags() {
 	flag.IntVar(&threads, "T", 1000, "number of threads to use")
 	flag.IntVar(&threads, "threads", 1000, "number of threads to use")
 	flag.IntVar(&timeout, "t", 1, "timeout in seconds")
@@ -41,11 +52,6 @@ func main() {
 	flag.StringVar(&portRange, "p", "25565-25570", "output location for scan file")
 	flag.Usage = func() { fmt.Print(usage) }
 	flag.Parse()
-	fmt.Println(portRange)
-	pool = gopool.NewPool(threads)
-	ports := []uint16{25565}
-	loopBlock(176, 9, ports)
-	pool.Wait()
 }
 
 func loopBlock(a uint8, b uint8, ports []uint16) {
@@ -66,7 +72,6 @@ func pingIt(ip string, port uint16) {
 	data, _, err := mcping.PingWithTimeout(ip, port, time.Duration(timeout)*time.Second)
 	completed++
 	if err == nil {
-		fmt.Println("Found")
 		sampleBytes, _ := json.Marshal(data.Sample)
 		sample := string(sampleBytes)
 		if sample == "null" {
