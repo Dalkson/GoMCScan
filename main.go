@@ -52,9 +52,8 @@ func main() {
 
 func pingIt(ip string, port uint16, pool *gopool.GoPool) {
 	defer pool.Done()
-	pinger := mcping.NewPinger()
 	timeout, _ := strconv.Atoi(os.Args[2])
-	dec, _, err := pinger.PingWithTimeout(ip, port, time.Duration(timeout)*time.Second)
+	dec, _, err := mcping.PingWithTimeout(ip, port, time.Duration(timeout)*time.Second)
 	if err == nil {
 		strDec := fmt.Sprintf("%#v", dec)
 		strDec = strings.ReplaceAll(strDec, "types.PlayerSample", "")
