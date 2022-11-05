@@ -14,6 +14,7 @@ import (
 var pinged int
 var completed int
 var found int
+var startTime time.Time
 
 const usage = `Usage of MCScan:
     MCScan [-T Threads] [-t Timeout] [-p PortRange] [-o output]
@@ -33,14 +34,13 @@ func main() {
 	flag.Usage = func() { fmt.Print(usage) }
 	flag.Parse()
 	pool := gopool.NewPool(threads)
-	var g uint8 = 176
-	var h uint8 = 9
 	ports := []uint16{25565}
-	loopBlock(timeout, g, h, ports, pool)
+	loopBlock(timeout, 176, 9, ports, pool)
 	pool.Wait()
 }
 
 func loopBlock(timeout int, a uint8, b uint8, ports []uint16, pool *gopool.GoPool) {
+	startTime = time.Now()
 	for _, port := range ports {
 		for j := 0; j < 255; j++ {
 			for k := 0; k < 255; k++ {
@@ -56,6 +56,7 @@ func loopBlock(timeout int, a uint8, b uint8, ports []uint16, pool *gopool.GoPoo
 func pingIt(ip string, port uint16, timeout int, pool *gopool.GoPool) {
 	defer pool.Done()
 	data, _, err := mcping.PingWithTimeout(ip, port, time.Duration(timeout)*time.Second)
+	completed++
 	if err == nil {
 		fmt.Println("Found")
 		sampleBytes, _ := json.Marshal(data.Sample)
@@ -67,6 +68,7 @@ func pingIt(ip string, port uint16, timeout int, pool *gopool.GoPool) {
 		fmt.Println(formatted)
 		found++
 		fmt.Printf("%v/%v, %v percent complete\n", completed, pinged, uint8(100*float64(completed)/float64(pinged)))
+		fmt.Printf("Time Elapsed: %v min, finding rate: %v servers per second", time.Since(startTime).Minutes(), int(float64(found)/float64(time.Since(startTime).Seconds())))
 		record(formatted)
 	} else {
 		//fmt.Println(err)
