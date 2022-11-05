@@ -16,7 +16,7 @@ func decodeResponse(response string) *types.PingResponse {
 	jq := jsonq.NewQuery(d)
 	presp := &types.PingResponse{}
 
-	presp.Sample = decodePlayersSimple(jq)
+	presp.Sample = decodePlayersSample(jq)
 
 	presp.Motd = decodeMotd(jq)
 
@@ -32,7 +32,7 @@ func decodeResponse(response string) *types.PingResponse {
 	return presp
 }
 
-func decodePlayersSimple(jq *jsonq.JsonQuery) []types.PlayerSample {
+func decodePlayersSample(jq *jsonq.JsonQuery) []types.PlayerSample {
 	psm, _ := jq.ArrayOfObjects("players", "sample")
 	var playerSamples []types.PlayerSample
 	for k := range psm {
