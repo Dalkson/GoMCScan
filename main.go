@@ -60,7 +60,7 @@ func loopBlock(a uint8, b uint8, ports []uint16) {
 			for d := 0; d < 255; d++ {
 				var ip = fmt.Sprintf("%v.%v.%v.%v", a, b, c, d)
 				pool.Add(1)
-				go pingIt(ip, port, timeout, pool)
+				go pingIt(ip, port)
 				pinged++
 			}
 		}
