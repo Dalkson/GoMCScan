@@ -3,8 +3,6 @@ package mcping
 import (
 	"GoMCScan/api/types"
 	"GoMCScan/dns"
-
-	//"GoMCScan/latency"
 	"net"
 	"strconv"
 	"time"
@@ -50,8 +48,6 @@ func (p *pinger) PingWithTimeout(host string, port uint16, timeout time.Duration
 		port = portSRV
 	}
 
-	//lat := latency.NewLatency()
-	//lat.Start()
 	addr := host + ":" + strconv.Itoa(int(port))
 
 	// Open connection to server
@@ -60,7 +56,6 @@ func (p *pinger) PingWithTimeout(host string, port uint16, timeout time.Duration
 		return nil, "", err
 	}
 	//延迟计算修改为与服务器连接过程时间,部分插件可能导致实际延迟过长
-	//lat.End()
 	defer conn.Close()
 
 	sendPacket(host, port, &conn)
@@ -69,6 +64,5 @@ func (p *pinger) PingWithTimeout(host string, port uint16, timeout time.Duration
 		return nil, "", err
 	}
 	decoded := decodeResponse(response)
-	//decode.Latency = uint(lat.Latency())
 	return decoded, response, nil
 }
