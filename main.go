@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/aherve/gopool"
@@ -37,8 +36,7 @@ func main() {
 	pool := gopool.NewPool(int(threads))
 	g := 176
 	h := 9
-	var port uint16
-	port = 25565
+	var port uint16 = 25565
 
 	for j := 0; j < 255; j++ {
 		for k := 0; k < 255; k++ {
@@ -54,25 +52,17 @@ func pingIt(ip string, port uint16, pool *gopool.GoPool) {
 	defer pool.Done()
 	timeout, _ := strconv.Atoi(os.Args[2])
 	dec, _, err := mcping.PingWithTimeout(ip, port, time.Duration(timeout)*time.Second)
-	if err == nil {
-		strDec := fmt.Sprintf("%#v", dec)
-		strDec = strings.ReplaceAll(strDec, "types.PlayerSample", "")
-		strDec = strings.ReplaceAll(strDec, "&types.PingResponse", "")
-		strDec = strings.ReplaceAll(strDec, "(nil)", "")
-		strDec = strings.ReplaceAll(strDec, "[]{", "{")
-		strport := fmt.Sprintf("%#v", int(port))
-		address := "IP:\"" + ip + ":" + strport + "\", "
-		data := "{" + address + strDec[1:]
-		fmt.Println(data)
 
-		if strings.Contains(strings.ToLower(strDec), "minecraft") || strings.Contains(strings.ToLower(strDec), "long_int") {
-			fmt.Println("Found")
-			record(data)
-		}
+	if err == nil {
+		fmt.Println("Found")
+		formatted := fmt.Sprintf("{ip:\"%v:%v\",motd:%q, version:%q, sample:%v}", ip, port, dec.Motd, dec.Version, dec.Sample)
+		fmt.Println(formatted)
+		record(formatted)
 	} else {
 		//fmt.Println(err)
 	}
 }
+
 
 func record(data string) {
 	f, err := os.OpenFile("out/scan.log",

@@ -7,6 +7,4 @@ require (
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/iverly/go-mcping v1.0.0 // indirect
 	github.com/jmoiron/jsonq v0.0.0-20150511023944-e874b168d07e // indirect
-	github.com/spf13/cobra v1.6.1 // indirect
-	github.com/spf13/pflag v1.0.5 // indirect
 )
