@@ -6,9 +6,9 @@ type PingResponse struct {
 	//PlayerCount PlayerCount // Players count information of the server
 	//Protocol    int // Protocol number of the server
 	//Favicon     string // Favicon in base64 of the server
-	Motd        string // Motd of the server without color
-	Version     string // Version of the server
-	Sample      []PlayerSample // List of connected players on the server
+	Motd    string         // Motd of the server without color
+	Version string         // Version of the server
+	Sample  []PlayerSample // List of connected players on the server
 }
 
 // An PlayerCount represent the player count information of an server

@@ -1,11 +1,12 @@
 package mcping
 
 import (
+	"GoMCScan/mcping/types"
 	"encoding/json"
 	"fmt"
-	"GoMCScan/api/types"
-	"github.com/jmoiron/jsonq"
 	"strings"
+
+	"github.com/jmoiron/jsonq"
 )
 
 func decodeResponse(response string) *types.PingResponse {
@@ -56,7 +57,6 @@ func decodeMotd(jq *jsonq.JsonQuery) string {
 		}
 		return sb.String()
 	}
-
 
 	s, _ := jq.String("description")
 	return s
