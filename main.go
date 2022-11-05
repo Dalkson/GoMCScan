@@ -11,10 +11,14 @@ import (
 
 	"github.com/aherve/gopool"
 )
+var pinged int
+var completed int
+var found int
 
 func main() {
 	threads := flag.Int("threads", 1000, "number of threads to use")
 	timeout := flag.Int("timeout", 1, "timeout in seconds")
+	
 	flag.Parse()
 	pool := gopool.NewPool(*threads)
 	var g uint8 = 176
@@ -31,6 +35,7 @@ func loopBlock(timeout *int, a uint8, b uint8, ports []uint16, pool *gopool.GoPo
 				var ip = fmt.Sprintf("%v.%v.%v.%v", a, b, j, k)
 				pool.Add(1)
 				go pingIt(ip, port, timeout, pool)
+				pinged++
 			}
 		}
 	}
@@ -39,6 +44,7 @@ func loopBlock(timeout *int, a uint8, b uint8, ports []uint16, pool *gopool.GoPo
 func pingIt(ip string, port uint16, timeout *int, pool *gopool.GoPool) {
 	defer pool.Done()
 	data, _, err := mcping.PingWithTimeout(ip, port, time.Duration(*timeout)*time.Second)
+	completed++
 	if err == nil {
 		fmt.Println("Found")
 		sampleBytes, _ := json.Marshal(data.Sample)
@@ -48,6 +54,8 @@ func pingIt(ip string, port uint16, timeout *int, pool *gopool.GoPool) {
 		}
 		formatted := fmt.Sprintf("{\"Ip\":\"%v:%v\", \"Version\":%q, \"Motd\":%q, \"Players:%v/%v\", \"Sample\":%v}", ip, port, data.Version, data.Motd, data.PlayerCount.Online, data.PlayerCount.Max, sample)
 		fmt.Println(formatted)
+		found++
+		fmt.Printf("%v/%v, %v percent complete\n", completed, pinged, uint8(100*float64(completed)/float64(pinged)))
 		record(formatted)
 	} else {
 		//fmt.Println(err)
