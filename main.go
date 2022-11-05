@@ -12,7 +12,6 @@ import (
 	"github.com/aherve/gopool"
 )
 
-
 const usage = `Usage of MCScan:
     MCScan [-T Threads] [-t Timeout] [-p PortRange] [-o output]
 Options:
@@ -41,6 +40,7 @@ func main() {
 	ports := []uint16{25565}
 	loopBlock(176, 9, ports)
 	pool.Wait()
+	fmt.Println("Scan Complete!")
 }
 
 func flags() {
@@ -79,7 +79,7 @@ func pingIt(ip string, port uint16) {
 		if sample == "null" {
 			sample = "[]"
 		}
-		formatted := fmt.Sprintf("{\"Ip\":\"%v:%v\", \"Version\":%q, \"Motd\":%q, \"Players:%v/%v\", \"Sample\":%v}", ip, port, data.Version, data.Motd, data.PlayerCount.Online, data.PlayerCount.Max, sample)
+		formatted := fmt.Sprintf("{\"Timestamp\":%q, \"Ip\":\"%v:%v\", \"Version\":%q, \"Motd\":%q, \"Players:%v/%v\", \"Sample\":%v}", time.Now().Format("2006-01-02 15:04:05"), ip, port, data.Version, data.Motd, data.PlayerCount.Online, data.PlayerCount.Max, sample)
 		fmt.Println(formatted)
 		found++
 		fmt.Printf("%v/%v, %v percent complete\n", completed, pinged, uint8(100*float64(completed)/float64(pinged)))
