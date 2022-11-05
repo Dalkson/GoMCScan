@@ -20,13 +20,13 @@ func decodeResponse(response string) *types.PingResponse {
 
 	presp.Motd = decodeMotd(jq)
 
-	//count := types.PlayerCount{}
-	//count.Online, _ = jq.Int("players", "online")
-	//count.Max, _ = jq.Int("players", "max")
+	count := types.PlayerCount{}
+	count.Online, _ = jq.Int("players", "online")
+	count.Max, _ = jq.Int("players", "max")
 
-	//presp.PlayerCount = count
 	//presp.Protocol, _ = jq.Int("version", "protocol")
 	//presp.Favicon, _ = jq.String("favicon")
+	presp.PlayerCount = count
 	presp.Version, _ = jq.String("version", "name")
 
 	return presp
