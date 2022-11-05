@@ -35,14 +35,13 @@ func pingIt(ip string, port uint16, pool *gopool.GoPool) {
 
 	if err == nil {
 		fmt.Println("Found")
-		formatted := fmt.Sprintf("{ip:\"%v:%v\",motd:%q, version:%q, sample:%v}", ip, port, dec.Motd, dec.Version, dec.Sample)
+		formatted := fmt.Sprintf("{ip:\"%v:%v\", version:%q, motd:%q, players:%v/%v, sample:%v}", ip, port, dec.Version, dec.Motd, dec.PlayerCount.Online, dec.PlayerCount.Max, dec.Sample)
 		fmt.Println(formatted)
 		record(formatted)
 	} else {
 		//fmt.Println(err)
 	}
 }
-
 
 func record(data string) {
 	f, err := os.OpenFile("out/scan.log",
