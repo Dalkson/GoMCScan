@@ -2,6 +2,7 @@ package main
 
 import (
 	"GoMCScan/mcping"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -32,10 +33,10 @@ func pingIt(ip string, port uint16, pool *gopool.GoPool) {
 	defer pool.Done()
 	timeout, _ := strconv.Atoi(os.Args[2])
 	dec, _, err := mcping.PingWithTimeout(ip, port, time.Duration(timeout)*time.Second)
-
 	if err == nil {
 		fmt.Println("Found")
-		formatted := fmt.Sprintf("{ip:\"%v:%v\",motd:%q, version:%q, sample:%v}", ip, port, dec.Motd, dec.Version, dec.Sample)
+		sample, _ := json.Marshal(dec.Sample) 
+		formatted := fmt.Sprintf("{\"Ip\":\"%v:%v\",\"Motd\":%q, \"Version\":%q, \"Sample\":%v}", ip, port, dec.Motd, dec.Version, string(sample))
 		fmt.Println(formatted)
 		record(formatted)
 	} else {
