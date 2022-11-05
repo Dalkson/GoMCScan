@@ -3,41 +3,42 @@ package main
 import (
 	"GoMCScan/mcping"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"log"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/aherve/gopool"
 )
 
 func main() {
-	threads, _ := strconv.Atoi(os.Args[1])
-	pool := gopool.NewPool(int(threads))
+	threads := flag.Int("threads", 1000, "number of threads to use")
+	timeout := flag.Int("timeout", 1, "timeout in seconds")
+	flag.Parse()
+	pool := gopool.NewPool(*threads)
 	var g uint8 = 176
 	var h uint8 = 9
 	ports := []uint16{25565}
-	loopBlock(g,h,ports,pool)
+	loopBlock(timeout, g, h, ports, pool)
 	pool.Wait()
 }
 
-func loopBlock(a uint8, b uint8, ports []uint16, pool *gopool.GoPool){
+func loopBlock(timeout *int, a uint8, b uint8, ports []uint16, pool *gopool.GoPool) {
 	for _, port := range ports {
 		for j := 0; j < 255; j++ {
 			for k := 0; k < 255; k++ {
 				var ip = fmt.Sprintf("%v.%v.%v.%v", a, b, j, k)
 				pool.Add(1)
-				go pingIt(ip, port, pool)
+				go pingIt(ip, port, timeout, pool)
 			}
 		}
 	}
 }
 
-func pingIt(ip string, port uint16, pool *gopool.GoPool) {
+func pingIt(ip string, port uint16, timeout *int, pool *gopool.GoPool) {
 	defer pool.Done()
-	timeout, _ := strconv.Atoi(os.Args[2])
-	data, _, err := mcping.PingWithTimeout(ip, port, time.Duration(timeout)*time.Second)
+	data, _, err := mcping.PingWithTimeout(ip, port, time.Duration(*timeout)*time.Second)
 	if err == nil {
 		fmt.Println("Found")
 		sampleBytes, _ := json.Marshal(data.Sample)
@@ -52,7 +53,6 @@ func pingIt(ip string, port uint16, pool *gopool.GoPool) {
 		//fmt.Println(err)
 	}
 }
-
 
 func record(data string) {
 	f, err := os.OpenFile("out/scan.log",
