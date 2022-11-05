@@ -11,10 +11,7 @@ import (
 
 	"github.com/aherve/gopool"
 )
-var pinged int
-var completed int
-var found int
-var startTime time.Time
+
 
 const usage = `Usage of MCScan:
     MCScan [-T Threads] [-t Timeout] [-p PortRange] [-o output]
@@ -29,16 +26,20 @@ var threads int
 var timeout int
 var output string
 var portRange string
+
+var pinged int
+var completed int
+var found int
+
+var startTime time.Time
 var pool *gopool.GoPool
 
 func main() {
 	flags()
 	fmt.Println(portRange)
 	pool = gopool.NewPool(threads)
-	var a uint8 = 176
-	var b uint8 = 9
 	ports := []uint16{25565}
-	loopBlock(a, b, ports)
+	loopBlock(176, 9, ports)
 	pool.Wait()
 }
 
@@ -55,6 +56,7 @@ func flags() {
 }
 
 func loopBlock(a uint8, b uint8, ports []uint16) {
+	startTime = time.Now()
 	for _, port := range ports {
 		for c := 0; c < 255; c++ {
 			for d := 0; d < 255; d++ {
