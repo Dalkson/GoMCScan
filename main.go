@@ -35,8 +35,12 @@ func pingIt(ip string, port uint16, pool *gopool.GoPool) {
 	dec, _, err := mcping.PingWithTimeout(ip, port, time.Duration(timeout)*time.Second)
 	if err == nil {
 		fmt.Println("Found")
-		sample, _ := json.Marshal(dec.Sample) 
-		formatted := fmt.Sprintf("{\"Ip\":\"%v:%v\", \"Version\":%q, \"Motd\":%q, \"Players:%v/%v\",  \"Sample\":%v}", ip, port, dec.Version, dec.Motd, dec.PlayerCount.Online, dec.PlayerCount.Max, string(sample))
+		sampleBytes, _ := json.Marshal(dec.Sample)
+		sample := string(sampleBytes)
+		if sample == "null" {
+			sample = "[]"
+		}
+		formatted := fmt.Sprintf("{\"Ip\":\"%v:%v\", \"Version\":%q, \"Motd\":%q, \"Players:%v/%v\",  \"Sample\":%v}", ip, port, dec.Version, dec.Motd, dec.PlayerCount.Online, dec.PlayerCount.Max, sample)
 		fmt.Println(formatted)
 		record(formatted)
 	} else {
