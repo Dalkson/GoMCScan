@@ -17,39 +17,48 @@ const usage = `Usage of MCScan:
 Options:
     -T, --threads number of threads to use
     -t, --timeout timeout in seconds
-    -h, --help prints help information 
+    -h, --help prints help information
+    -o, --output output location for scan file
 `
 
+var threads int
+var timeout int
+var output string
+var portRange string
+var pool *gopool.GoPool
+
 func main() {
-	var threads int
-	var timeout int
 	flag.IntVar(&threads, "T", 1000, "number of threads to use")
 	flag.IntVar(&threads, "threads", 1000, "number of threads to use")
 	flag.IntVar(&timeout, "t", 1, "timeout in seconds")
 	flag.IntVar(&timeout, "timeout", 1, "timeout in seconds")
+	flag.StringVar(&output, "output", "out/scan.log", "output location for scan file")
+	flag.StringVar(&output, "o", "out/scan.log", "output location for scan file")
+	flag.StringVar(&portRange, "p", "25565-25570", "output location for scan file")
 	flag.Usage = func() { fmt.Print(usage) }
 	flag.Parse()
-	pool := gopool.NewPool(threads)
-	var g uint8 = 176
-	var h uint8 = 9
+	fmt.Println(portRange)
+	pool = gopool.NewPool(threads)
+	var a uint8 = 176
+	var b uint8 = 9
 	ports := []uint16{25565}
-	loopBlock(timeout, g, h, ports, pool)
+	loopBlock(a, b, ports)
 	pool.Wait()
 }
 
-func loopBlock(timeout int, a uint8, b uint8, ports []uint16, pool *gopool.GoPool) {
+func loopBlock(a uint8, b uint8, ports []uint16) {
 	for _, port := range ports {
-		for j := 0; j < 255; j++ {
-			for k := 0; k < 255; k++ {
-				var ip = fmt.Sprintf("%v.%v.%v.%v", a, b, j, k)
+		for c := 0; c < 255; c++ {
+			for d := 0; d < 255; d++ {
+				var ip = fmt.Sprintf("%v.%v.%v.%v", a, b, c, d)
 				pool.Add(1)
-				go pingIt(ip, port, timeout, pool)
+				go pingIt(ip, port)
 			}
 		}
 	}
 }
 
-func pingIt(ip string, port uint16, timeout int, pool *gopool.GoPool) {
+func pingIt(ip string, port uint16) {
 	defer pool.Done()
 	data, _, err := mcping.PingWithTimeout(ip, port, time.Duration(timeout)*time.Second)
 	if err == nil {
@@ -68,7 +77,7 @@ func pingIt(ip string, port uint16, timeout int, pool *gopool.GoPool) {
 }
 
 func record(data string) {
-	f, err := os.OpenFile("out/scan.log",
+	f, err := os.OpenFile(output,
 		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Println(err)
