@@ -15,38 +15,44 @@ import (
 func main() {
 	threads, _ := strconv.Atoi(os.Args[1])
 	pool := gopool.NewPool(int(threads))
-	g := 176
-	h := 9
-	var port uint16 = 25565
+	var g uint8 = 176
+	var h uint8 = 9
+	ports := []uint16{25565}
+	loopBlock(g,h,ports,pool)
+	pool.Wait()
+}
 
-	for j := 0; j < 255; j++ {
-		for k := 0; k < 255; k++ {
-			var ip = fmt.Sprintf("%v.%v.%v.%v", g, h, j, k)
-			pool.Add(1)
-			go pingIt(ip, port, pool)
+func loopBlock(a uint8, b uint8, ports []uint16, pool *gopool.GoPool){
+	for _, port := range ports {
+		for j := 0; j < 255; j++ {
+			for k := 0; k < 255; k++ {
+				var ip = fmt.Sprintf("%v.%v.%v.%v", a, b, j, k)
+				pool.Add(1)
+				go pingIt(ip, port, pool)
+			}
 		}
 	}
-	pool.Wait()
 }
 
 func pingIt(ip string, port uint16, pool *gopool.GoPool) {
 	defer pool.Done()
 	timeout, _ := strconv.Atoi(os.Args[2])
-	dec, _, err := mcping.PingWithTimeout(ip, port, time.Duration(timeout)*time.Second)
+	data, _, err := mcping.PingWithTimeout(ip, port, time.Duration(timeout)*time.Second)
 	if err == nil {
 		fmt.Println("Found")
-		sampleBytes, _ := json.Marshal(dec.Sample)
+		sampleBytes, _ := json.Marshal(data.Sample)
 		sample := string(sampleBytes)
 		if sample == "null" {
 			sample = "[]"
 		}
-		formatted := fmt.Sprintf("{\"Ip\":\"%v:%v\", \"Version\":%q, \"Motd\":%q, \"Players:%v/%v\",  \"Sample\":%v}", ip, port, dec.Version, dec.Motd, dec.PlayerCount.Online, dec.PlayerCount.Max, sample)
+		formatted := fmt.Sprintf("{\"Ip\":\"%v:%v\", \"Version\":%q, \"Motd\":%q, \"Players:%v/%v\", \"Sample\":%v}", ip, port, data.Version, data.Motd, data.PlayerCount.Online, data.PlayerCount.Max, sample)
 		fmt.Println(formatted)
 		record(formatted)
 	} else {
 		//fmt.Println(err)
 	}
 }
+
 
 func record(data string) {
 	f, err := os.OpenFile("out/scan.log",
