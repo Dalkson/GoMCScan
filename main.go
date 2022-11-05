@@ -12,11 +12,24 @@ import (
 	"github.com/aherve/gopool"
 )
 
+const usage = `Usage of MCScan:
+    MCScan [-T Threads] [-t Timeout] [-p PortRange] [-o output]
+Options:
+    -T, --threads number of threads to use
+    -t, --timeout timeout in seconds
+    -h, --help prints help information 
+`
+
 func main() {
-	threads := flag.Int("threads", 1000, "number of threads to use")
-	timeout := flag.Int("timeout", 1, "timeout in seconds")
+	var threads int
+	var timeout int
+	flag.IntVar(&threads, "T", 1000, "number of threads to use")
+	flag.IntVar(&threads, "threads", 1000, "number of threads to use")
+	flag.IntVar(&timeout, "t", 1, "timeout in seconds")
+	flag.IntVar(&timeout, "timeout", 1, "timeout in seconds")
+	flag.Usage = func() { fmt.Print(usage) }
 	flag.Parse()
-	pool := gopool.NewPool(*threads)
+	pool := gopool.NewPool(threads)
 	var g uint8 = 176
 	var h uint8 = 9
 	ports := []uint16{25565}
@@ -24,7 +37,7 @@ func main() {
 	pool.Wait()
 }
 
-func loopBlock(timeout *int, a uint8, b uint8, ports []uint16, pool *gopool.GoPool) {
+func loopBlock(timeout int, a uint8, b uint8, ports []uint16, pool *gopool.GoPool) {
 	for _, port := range ports {
 		for j := 0; j < 255; j++ {
 			for k := 0; k < 255; k++ {
@@ -36,9 +49,9 @@ func loopBlock(timeout *int, a uint8, b uint8, ports []uint16, pool *gopool.GoPo
 	}
 }
 
-func pingIt(ip string, port uint16, timeout *int, pool *gopool.GoPool) {
+func pingIt(ip string, port uint16, timeout int, pool *gopool.GoPool) {
 	defer pool.Done()
-	data, _, err := mcping.PingWithTimeout(ip, port, time.Duration(*timeout)*time.Second)
+	data, _, err := mcping.PingWithTimeout(ip, port, time.Duration(timeout)*time.Second)
 	if err == nil {
 		fmt.Println("Found")
 		sampleBytes, _ := json.Marshal(data.Sample)
