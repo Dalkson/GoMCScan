@@ -75,7 +75,7 @@ func pingIt(ip string, port uint16, pool *gopool.GoPool) {
 }
 
 func record(data string) {
-	f, err := os.OpenFile("text.log",
+	f, err := os.OpenFile("./out/scan.log",
 		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Println(err)
