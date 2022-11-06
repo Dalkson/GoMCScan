@@ -21,15 +21,17 @@ var portList []uint16
 var pinged int
 var completed int
 var found int
+var total int
 
 var startTime time.Time
 var pool *gopool.GoPool
 
 func main() {
 	getFlags()
+	total = totalToSend()
 	pool = gopool.NewPool(threads)
 	fmt.Println("Scanning ports:", portList)
-	go logLoop(2*time.Second)
+	go logLoop(2 * time.Second)
 	loopBlock()
 	pool.Wait()
 	fmt.Println("Scan Complete!")
@@ -76,7 +78,7 @@ func pingIt(ip string, port uint16) {
 		}
 		formatted := fmt.Sprintf("{\"Timestamp\":%q, \"Ip\":\"%v:%v\", \"Version\":%q, \"Motd\":%q, \"Players:%v/%v\", \"Sample\":%v}", time.Now().Format("2006-01-02 15:04:05"), ip, port, data.Version, data.Motd, data.PlayerCount.Online, data.PlayerCount.Max, sample)
 		found++
-		printStatus(fmt.Sprintf("%v:%v | %v",ip,port,data.Motd))
+		printStatus(fmt.Sprintf("%v:%v | %v", ip, port, data.Motd))
 		record(formatted)
 	} else {
 		//fmt.Println(err)
