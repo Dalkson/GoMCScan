@@ -2,8 +2,8 @@ package types
 
 // An PingResponse represent the structure returned by the server
 type PingResponse struct {
-	//Protocol    int // Protocol number of the server
-	//Favicon     string // Favicon in base64 of the server
+	Protocol    int            // Protocol number of the server
+	Favicon     string         // Favicon in base64 of the server
 	PlayerCount PlayerCount    // Players count information of the server
 	Motd        string         // Motd of the server without color
 	Version     string         // Version of the server

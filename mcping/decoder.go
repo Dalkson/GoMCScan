@@ -24,8 +24,8 @@ func decodeResponse(response string) *types.PingResponse {
 	count.Online, _ = jq.Int("players", "online")
 	count.Max, _ = jq.Int("players", "max")
 
-	//presp.Protocol, _ = jq.Int("version", "protocol")
-	//presp.Favicon, _ = jq.String("favicon")
+	presp.Protocol, _ = jq.Int("version", "protocol")
+	presp.Favicon, _ = jq.String("favicon")
 	presp.PlayerCount = count
 	presp.Version, _ = jq.String("version", "name")
 
