@@ -75,7 +75,7 @@ func expandAddress(input string) {
 	}
 	for _, a := range input {
 		if !(unicode.IsNumber(a) || a == ',' || a == '.' || a == '/') {
-			handleError("Invalid characters in ports list. Valid characters include: \"12345678,./\"")
+			handleError("Invalid characters in ports list. Valid characters include: \"123456789,./\"")
 		}
 	}
 	addressList = strings.Split(input, ",")
@@ -85,7 +85,7 @@ func expandPort(input string) []uint16 {
 	// Example input: "123,456-458,11111", output: [123,456,567,458,11111]
 	for _, a := range input {
 		if !(unicode.IsNumber(a) || a == ',' || a == '-') {
-			handleError("Invalid characters in ports list. Valid characters include: \"12345678,-\"")
+			handleError("Invalid characters in ports list. Valid characters include: \"123456789,-\"")
 		}
 	}
 	var output []uint16
