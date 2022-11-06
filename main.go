@@ -42,7 +42,7 @@ func main() {
 	flags()
 	pool = gopool.NewPool(threads)
 	fmt.Println("Scanning ports:", portList)
-	loopBlock(portList)
+	loopBlock()
 	pool.Wait()
 	fmt.Println("Scan Complete!")
 }
@@ -64,12 +64,18 @@ func flags() {
 	// flag.Usage = func() { fmt.Print(usage) }
 	flag.Parse()
 
-	addressList = expandAddress(addressRange)
+	expandAddress(addressRange)
 	portList = expandPort(portRange)
 }
 
-func expandAddress(input string) []string {
-	return output
+func expandAddress(input string) {
+	// Example string input: "176.9.0.0/16,116.202.0.0/16", output: [176.9.0.0/16,116.202.0.0/16]
+	for _, a := range input {
+		if !(unicode.IsNumber(a) || a == ',' || a == '.' || a == '/') {
+			handleError("Invalid characters in ports list. Valid characters include: \"12345678,./\"")
+		}
+	}
+	addressList = strings.Split(input, ",")
 }
 
 func expandPort(input string) []uint16 {
@@ -102,20 +108,24 @@ func expandPort(input string) []uint16 {
 	return output
 }
 
-func loopBlock(ports []uint16) {
+func loopBlock() {
 	startTime = time.Now()
-	for _, port := range ports {
-		ip, ipnet, err := net.ParseCIDR("176.9.0.0/16")
-		if err != nil {
-			log.Fatal(err)
-		}
-		for ip := ip.Mask(ipnet.Mask); ipnet.Contains(ip); inc(ip) {
-			pool.Add(1)
-			go pingIt(string(net.IP.String(ip)), port)
-			pinged++
+	for _, port := range portList {
+		for _, address := range addressList {
+			if !strings.Contains(address, "/") {
+				address = fmt.Sprintf("%v/32", address)
+			}
+			ip, ipnet, err := net.ParseCIDR(address)
+			if err != nil {
+				log.Fatal(err)
+			}
+			for ip := ip.Mask(ipnet.Mask); ipnet.Contains(ip); inc(ip) {
+				pool.Add(1)
+				go pingIt(string(net.IP.String(ip)), port)
+				pinged++
+			}
 		}
 	}
-
 }
 
 func inc(ip net.IP) {
