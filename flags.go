@@ -6,14 +6,17 @@ import (
 )
 
 func getFlags() {
+	// sets help page for MCScan
 	const usage = `Usage of MCScan:
-    MCScan [-T Threads] [-t Timeout] [-p PortRange] [-o output]
-Options:
-    -T, --threads number of threads to use
-    -t, --timeout timeout in seconds
-    -h, --help prints help information
-    -o, --output output location for scan file
-`
+     MCScan (-a targets) [-p PortRange] [-T Threads] [-t Timeout] [-o output]
+ Options:
+     -h, --help prints help information
+     -a, --targets IP address range to scan
+     -p, --ports port range to scan (25565)
+     -T, --threads number of threads to use (1000)
+     -t, --timeout timeout in seconds (3)
+     -o, --output output location for scan file (out/scan.log)
+	 `
 	flag.IntVar(&threads, "T", 1000, "number of threads to use")
 	flag.IntVar(&threads, "threads", 1000, "number of threads to use")
 	flag.IntVar(&timeout, "t", 1, "timeout in seconds")
