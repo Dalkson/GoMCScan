@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"math"
 	"net"
 	"os"
 	"strconv"
@@ -42,6 +43,7 @@ func main() {
 	flags()
 	pool = gopool.NewPool(threads)
 	fmt.Println("Scanning ports:", portList)
+	go logLoop(2*time.Second)
 	loopBlock()
 	pool.Wait()
 	fmt.Println("Scan Complete!")
@@ -75,7 +77,7 @@ func expandAddress(input string) {
 	}
 	for _, a := range input {
 		if !(unicode.IsNumber(a) || a == ',' || a == '.' || a == '/') {
-			handleError("Invalid characters in ports list. Valid characters include: \"12345678,./\"")
+			handleError("Invalid characters in ports list. Valid characters include: \"123456789,./\"")
 		}
 	}
 	addressList = strings.Split(input, ",")
@@ -85,7 +87,7 @@ func expandPort(input string) []uint16 {
 	// Example input: "123,456-458,11111", output: [123,456,567,458,11111]
 	for _, a := range input {
 		if !(unicode.IsNumber(a) || a == ',' || a == '-') {
-			handleError("Invalid characters in ports list. Valid characters include: \"12345678,-\"")
+			handleError("Invalid characters in ports list. Valid characters include: \"123456789,-\"")
 		}
 	}
 	var output []uint16
@@ -151,14 +153,35 @@ func pingIt(ip string, port uint16) {
 			sample = "[]"
 		}
 		formatted := fmt.Sprintf("{\"Timestamp\":%q, \"Ip\":\"%v:%v\", \"Version\":%q, \"Motd\":%q, \"Players:%v/%v\", \"Sample\":%v}", time.Now().Format("2006-01-02 15:04:05"), ip, port, data.Version, data.Motd, data.PlayerCount.Online, data.PlayerCount.Max, sample)
-		fmt.Println(formatted)
 		found++
-		fmt.Printf("%v/%v, %v percent complete\n", completed, pinged, uint8(100*float64(completed)/float64(pinged)))
-		fmt.Printf("Time Elapsed: %v min, finding rate: %v servers per second", time.Since(startTime).Minutes(), int(float64(found)/float64(time.Since(startTime).Seconds())))
+		printStatus(fmt.Sprintf("%v:%v | %v",ip,port,data.Motd))
 		record(formatted)
 	} else {
 		//fmt.Println(err)
 	}
+}
+
+func logLoop(interval time.Duration) {
+	for t := range time.Tick(1 * time.Second) {
+		logsleep(t,interval)
+}
+	
+}
+
+func logsleep(tick time.Time, interval time.Duration) {
+	printStatus("")
+    time.Sleep(interval)
+
+} 
+
+func printStatus(announce string){
+const percent = "%"
+percentage := math.Round(100*float64(completed)/float64(pinged))
+elapsed := math.Round(time.Since(startTime).Minutes()*10)/10
+elapsedSec := float64(time.Since(startTime).Seconds())
+findRate := math.Round(float64(found)/float64(elapsedSec))
+pingRate := math.Round(float64(pinged)/float64(elapsedSec))
+fmt.Printf("%v%v | Found: %v at %v/s | Pinged: %v at %v/s | Time: %vm | %v \n",percentage,percent,found,findRate,pinged,pingRate,elapsed,announce)
 }
 
 func record(data string) {
