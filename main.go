@@ -31,9 +31,10 @@ func main() {
 	total = totalToSend()
 	pool = gopool.NewPool(threads)
 	fmt.Println("Scanning ports:", portList)
+	fmt.Println("Total to scan:", total)
 	go logLoop(2 * time.Second)
 	loopBlock()
-	pool.Wait()
+	pool.Wait()	
 	fmt.Println("Scan Complete!")
 }
 
@@ -68,6 +69,7 @@ func inc(ip net.IP) {
 
 func pingIt(ip string, port uint16) {
 	defer pool.Done()
+
 	data, _, err := mcping.PingWithTimeout(ip, port, time.Duration(timeout)*time.Second)
 	completed++
 	if err == nil {
@@ -83,4 +85,5 @@ func pingIt(ip string, port uint16) {
 	} else {
 		//fmt.Println(err)
 	}
+
 }

@@ -12,7 +12,6 @@ import (
 //
 // # Error is thrown when the host is unreachable or the data received are incorrect
 //
-// Example: PingWithTimeout("play.hypixel.net", 25565, 5 * time.Second)
 func PingWithTimeout(host string, port uint16, timeout time.Duration) (*types.PingResponse, string, error) {
 	addr := host + ":" + strconv.Itoa(int(port))
 
