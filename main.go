@@ -39,7 +39,7 @@ var pool *gopool.GoPool
 func main() {
 	flags()
 	pool = gopool.NewPool(threads)
-	fmt.Println("Scanning ports:",portList)
+	fmt.Println("Scanning ports:", portList)
 	loopBlock(176, 9, portList)
 	pool.Wait()
 	fmt.Println("Scan Complete!")
@@ -54,39 +54,43 @@ func flags() {
 	flag.StringVar(&outputDir, "o", "out/scan.log", "output location for scan file")
 	var portRange string
 	flag.StringVar(&portRange, "p", "25565", "port range to scan")
-	portList = expandPort(portRange)
-
 
 	// flag.Usage = func() { fmt.Print(usage) }
 	flag.Parse()
+
+	portList = expandPort(portRange)
 }
 
-func expandPort(input string) ([]uint16) {
+func expandPort(input string) []uint16 {
 	// Example input: "123,456-458,11111", output: [123,456,567,458,11111]
 	for _, a := range input {
 		if !(unicode.IsNumber(a) || a == ',' || a == '-') {
 			handleError("Invalid characters in ports list. Valid characters include: \"12345678,-\"")
-		} 
+		}
 	}
 	var output []uint16
 	for _, o := range strings.Split(input, ",") {
 		if strings.Contains(o, "-") {
 			test := strings.Split(o, "-")
-			startPort, err1 := strconv.ParseInt(test[0],10,16)
-			endPort, err2 := strconv.ParseInt(test[1],10,16)
-			if (err1 != nil || err2 != nil) {handleError("Port could not be parsed to integer")}
-			for port := uint16(startPort); port < uint16(endPort +1); port++ {
+			startPort, err1 := strconv.ParseInt(test[0], 10, 16)
+			endPort, err2 := strconv.ParseInt(test[1], 10, 16)
+			if err1 != nil || err2 != nil {
+				handleError("Port could not be parsed to integer")
+			}
+			for port := uint16(startPort); port < uint16(endPort+1); port++ {
 				output = append(output, port)
 			}
 		} else {
-			port, err := strconv.ParseUint(o,10,16)
-			if (err != nil) {handleError("Port could not be parsed to integer")}
+			port, err := strconv.ParseUint(o, 10, 16)
+			if err != nil {
+				handleError("Port could not be parsed to integer")
+			}
 			output = append(output, uint16(port))
 		}
 	}
-return output
+	return output
 }
-	
+
 func loopBlock(a uint8, b uint8, ports []uint16) {
 	startTime = time.Now()
 	for _, port := range ports {
