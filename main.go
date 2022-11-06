@@ -58,8 +58,8 @@ func flags() {
 	flag.StringVar(&portRange, "p", "25565", "port range to scan")
 	flag.StringVar(&portRange, "port", "25565", "port range to scan")
 	var addressRange string
-	flag.StringVar(&addressRange, "a", "176.9.0.0/16", "IP address range to scan")
-	flag.StringVar(&addressRange, "targets", "176.9.0.0/16", "IP address range to scan")
+	flag.StringVar(&addressRange, "a", "", "IP address range to scan")
+	flag.StringVar(&addressRange, "targets", "", "IP address range to scan")
 
 	// flag.Usage = func() { fmt.Print(usage) }
 	flag.Parse()
@@ -70,6 +70,9 @@ func flags() {
 
 func expandAddress(input string) {
 	// Example string input: "176.9.0.0/16,116.202.0.0/16", output: [176.9.0.0/16,116.202.0.0/16]
+	if input == "" {
+		handleError("no target set, set one with -a or --targets")
+	}
 	for _, a := range input {
 		if !(unicode.IsNumber(a) || a == ',' || a == '.' || a == '/') {
 			handleError("Invalid characters in ports list. Valid characters include: \"12345678,./\"")
