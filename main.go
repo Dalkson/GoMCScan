@@ -7,24 +7,27 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
+	"strings"
 	"time"
+	"unicode"
 
 	"github.com/aherve/gopool"
 )
 
-const usage = `Usage of MCScan:
-    MCScan [-T Threads] [-t Timeout] [-p PortRange] [-o output]
-Options:
-    -T, --threads number of threads to use
-    -t, --timeout timeout in seconds
-    -h, --help prints help information
-    -o, --output output location for scan file
-`
+// const usage = `Usage of MCScan:
+//     MCScan [-T Threads] [-t Timeout] [-p PortRange] [-o output]
+// Options:
+//     -T, --threads number of threads to use
+//     -t, --timeout timeout in seconds
+//     -h, --help prints help information
+//     -o, --output output location for scan file
+// `
 
 var threads int
 var timeout int
-var output string
-var portRange string
+var outputDir string
+var portList []uint16
 
 var pinged int
 var completed int
@@ -35,10 +38,9 @@ var pool *gopool.GoPool
 
 func main() {
 	flags()
-	fmt.Println(portRange)
 	pool = gopool.NewPool(threads)
-	ports := []uint16{25565}
-	loopBlock(176, 9, ports)
+	fmt.Println("Scanning ports:",portList)
+	loopBlock(176, 9, portList)
 	pool.Wait()
 	fmt.Println("Scan Complete!")
 }
@@ -48,13 +50,43 @@ func flags() {
 	flag.IntVar(&threads, "threads", 1000, "number of threads to use")
 	flag.IntVar(&timeout, "t", 1, "timeout in seconds")
 	flag.IntVar(&timeout, "timeout", 1, "timeout in seconds")
-	flag.StringVar(&output, "output", "out/scan.log", "output location for scan file")
-	flag.StringVar(&output, "o", "out/scan.log", "output location for scan file")
-	flag.StringVar(&portRange, "p", "25565-25570", "output location for scan file")
-	flag.Usage = func() { fmt.Print(usage) }
+	flag.StringVar(&outputDir, "output", "out/scan.log", "output location for scan file")
+	flag.StringVar(&outputDir, "o", "out/scan.log", "output location for scan file")
+	var portRange string
+	flag.StringVar(&portRange, "p", "25565", "port range to scan")
+	portList = expandPort(portRange)
+
+
+	// flag.Usage = func() { fmt.Print(usage) }
 	flag.Parse()
 }
 
+func expandPort(input string) ([]uint16) {
+	// Example input: "123,456-458,11111", output: [123,456,567,458,11111]
+	for _, a := range input {
+		if !(unicode.IsNumber(a) || a == ',' || a == '-') {
+			handleError("Invalid characters in ports list. Valid characters include: \"12345678,-\"")
+		} 
+	}
+	var output []uint16
+	for _, o := range strings.Split(input, ",") {
+		if strings.Contains(o, "-") {
+			test := strings.Split(o, "-")
+			startPort, err1 := strconv.ParseInt(test[0],10,16)
+			endPort, err2 := strconv.ParseInt(test[1],10,16)
+			if (err1 != nil || err2 != nil) {handleError("Port could not be parsed to integer")}
+			for port := uint16(startPort); port < uint16(endPort +1); port++ {
+				output = append(output, port)
+			}
+		} else {
+			port, err := strconv.ParseUint(o,10,16)
+			if (err != nil) {handleError("Port could not be parsed to integer")}
+			output = append(output, uint16(port))
+		}
+	}
+return output
+}
+	
 func loopBlock(a uint8, b uint8, ports []uint16) {
 	startTime = time.Now()
 	for _, port := range ports {
@@ -91,7 +123,7 @@ func pingIt(ip string, port uint16) {
 }
 
 func record(data string) {
-	f, err := os.OpenFile(output,
+	f, err := os.OpenFile(outputDir,
 		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Println(err)
@@ -100,4 +132,9 @@ func record(data string) {
 	if _, err := f.WriteString(data + "\n"); err != nil {
 		log.Println(err)
 	}
+}
+
+func handleError(err string) {
+	fmt.Fprintf(os.Stderr, "error: %v\n", err)
+	os.Exit(1)
 }
