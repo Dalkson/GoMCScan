@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net"
 	"os"
 	"strconv"
 	"strings"
@@ -27,6 +28,7 @@ import (
 var threads int
 var timeout int
 var outputDir string
+var addressList []string
 var portList []uint16
 
 var pinged int
@@ -40,7 +42,7 @@ func main() {
 	flags()
 	pool = gopool.NewPool(threads)
 	fmt.Println("Scanning ports:", portList)
-	loopBlock(176, 9, portList)
+	loopBlock(portList)
 	pool.Wait()
 	fmt.Println("Scan Complete!")
 }
@@ -54,11 +56,20 @@ func flags() {
 	flag.StringVar(&outputDir, "o", "out/scan.log", "output location for scan file")
 	var portRange string
 	flag.StringVar(&portRange, "p", "25565", "port range to scan")
+	flag.StringVar(&portRange, "port", "25565", "port range to scan")
+	var addressRange string
+	flag.StringVar(&addressRange, "a", "176.9.0.0/16", "IP address range to scan")
+	flag.StringVar(&addressRange, "targets", "176.9.0.0/16", "IP address range to scan")
 
 	// flag.Usage = func() { fmt.Print(usage) }
 	flag.Parse()
 
+	addressList = expandAddress(addressRange)
 	portList = expandPort(portRange)
+}
+
+func expandAddress(input string) []string {
+	return output
 }
 
 func expandPort(input string) []uint16 {
@@ -91,16 +102,27 @@ func expandPort(input string) []uint16 {
 	return output
 }
 
-func loopBlock(a uint8, b uint8, ports []uint16) {
+func loopBlock(ports []uint16) {
 	startTime = time.Now()
 	for _, port := range ports {
-		for c := 0; c < 255; c++ {
-			for d := 0; d < 255; d++ {
-				var ip = fmt.Sprintf("%v.%v.%v.%v", a, b, c, d)
-				pool.Add(1)
-				go pingIt(ip, port)
-				pinged++
-			}
+		ip, ipnet, err := net.ParseCIDR("176.9.0.0/16")
+		if err != nil {
+			log.Fatal(err)
+		}
+		for ip := ip.Mask(ipnet.Mask); ipnet.Contains(ip); inc(ip) {
+			pool.Add(1)
+			go pingIt(string(net.IP.String(ip)), port)
+			pinged++
+		}
+	}
+
+}
+
+func inc(ip net.IP) {
+	for j := len(ip) - 1; j >= 0; j-- {
+		ip[j]++
+		if ip[j] > 0 {
+			break
 		}
 	}
 }
