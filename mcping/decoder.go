@@ -34,7 +34,7 @@ func decodeResponse(response string) *types.PingResponse {
 
 func decodePlayersSample(jq *jsonq.JsonQuery) []types.PlayerSample {
 	psm, _ := jq.ArrayOfObjects("players", "sample")
-	var playerSamples []types.PlayerSample
+	var playerSamples = make([]types.PlayerSample, 0)
 	for k := range psm {
 		sample := types.PlayerSample{}
 		sample.UUID = psm[k]["id"].(string)

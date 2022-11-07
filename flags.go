@@ -39,7 +39,7 @@ func getFlags() {
 	flag.Parse()
 
 	if isFlagPassed("a") || isFlagPassed("targets") { // if input fill is passed, set addressRange to the contents of the file
-		expandAddress(addressRange)
+		addressList = expandAddress(addressRange)
 	} else if _, err := os.Stat(inputPath); err == nil { //checks if input file exist, then reads it if it does
 		b, err := os.ReadFile(inputPath)
 		if err != nil {
@@ -48,7 +48,7 @@ func getFlags() {
 		str := string(b)
 		if str != "" { //checks if input file is empty
 			addressRange = str
-			expandAddress(addressRange)
+			addressList = expandAddress(addressRange)
 		} else {
 			handleError("Input file is empty.")
 		}

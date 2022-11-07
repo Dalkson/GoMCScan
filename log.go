@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"math"
@@ -33,14 +34,16 @@ func printStatus(announce string) {
 	fmt.Printf("%v%v | Found: %v at %v/s | Pinged: %v at %v/s | Time: %vm, %vm rem | %v \n", percentage, percent, found, findRate, pinged, pingRate, elapsed, remaining, announce)
 }
 
-func record(data string) {
+func record(dataJSON formattedOutput) {
+	dataBytes, _ := json.Marshal(dataJSON)
+	dataString := string(dataBytes)
 	f, err := os.OpenFile(outputPath,
 		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Println(err)
 	}
 	defer f.Close()
-	if _, err := f.WriteString(data + "\n"); err != nil {
+	if _, err := f.WriteString(dataString + "\n"); err != nil {
 		log.Println(err)
 	}
 }

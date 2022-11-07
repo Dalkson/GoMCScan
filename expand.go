@@ -6,21 +6,21 @@ import (
 	"unicode"
 )
 
-func expandAddress(input string) {
+func expandAddress(input string) []string {
 	// Example string input: "176.9.0.0/16,116.202.0.0/16", output: [176.9.0.0/16,116.202.0.0/16]
 	for _, a := range input {
 		if !(unicode.IsNumber(a) || a == ',' || a == '.' || a == '/') {
 			handleError("Invalid characters in address list. Valid characters include: \"123456789,./\"")
 		}
 	}
-	addressList = strings.Split(input, ",")
+	return strings.Split(input, ",")
 }
 
 func expandPort(input string) []uint16 {
 	// Example input: "123,456-458,11111", output: [123,456,567,458,11111]
 	for _, a := range input {
 		if !(unicode.IsNumber(a) || a == ',' || a == '-') {
-			handleError("Invalid characters in ports list. Valid characters include: \"123456789,-\"")
+			handleError("Invalid characters in port list. Valid characters include: \"123456789,-\"")
 		}
 	}
 	var output []uint16

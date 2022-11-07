@@ -2,7 +2,7 @@ package main
 
 import (
 	"GoMCScan/mcping"
-	"encoding/json"
+	"GoMCScan/mcping/types"
 	"fmt"
 	"log"
 	"net"
@@ -66,19 +66,24 @@ func inc(ip net.IP) {
 	}
 }
 
+type formattedOutput struct {
+	Timestamp string
+	Ip string
+	Version string
+	Motd string 
+	PlayersCount types.PlayerCount
+	Sample []types.PlayerSample
+}
+
 func pingIt(ip string, port uint16) {
 	defer pool.Done()
 	data, _, err := mcping.PingWithTimeout(ip, port, time.Duration(timeout)*time.Second)
 	completed++ // this is somewhat broken because of concurency
 	if err == nil {
-		sampleBytes, _ := json.Marshal(data.Sample)
-		sample := string(sampleBytes)
-		if sample == "null" {
-			sample = "[]"
-		}
-		formatted := fmt.Sprintf("{\"Timestamp\":%q, \"Ip\":\"%v:%v\", \"Version\":%q, \"Motd\":%q, \"Players\":\"%v/%v\", \"Sample\":%v}", time.Now().Format("2006-01-02 15:04:05"), ip, port, data.Version, data.Motd, data.PlayerCount.Online, data.PlayerCount.Max, sample)
-		found++
+
+		found++ // also would be broken
 		printStatus(fmt.Sprintf("%v:%v | %v", ip, port, data.Motd))
+		formatted := formattedOutput{time.Now().Format("2006-01-02 15:04:04"), ip+":"+fmt.Sprint(port), data.Version, data.Motd, data.PlayerCount, data.Sample}
 		record(formatted)
 	}
 }
