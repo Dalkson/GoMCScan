@@ -76,7 +76,7 @@ func pingIt(ip string, port uint16) {
 		if sample == "null" {
 			sample = "[]"
 		}
-		formatted := fmt.Sprintf("{\"Timestamp\":%q, \"Ip\":\"%v:%v\", \"Version\":%q, \"Motd\":%q, \"Players:%v/%v\", \"Sample\":%v}", time.Now().Format("2006-01-02 15:04:05"), ip, port, data.Version, data.Motd, data.PlayerCount.Online, data.PlayerCount.Max, sample)
+		formatted := fmt.Sprintf("{\"Timestamp\":%q, \"Ip\":\"%v:%v\", \"Version\":%q, \"Motd\":%q, \"Players\":\"%v/%v\", \"Sample\":%v}", time.Now().Format("2006-01-02 15:04:05"), ip, port, data.Version, data.Motd, data.PlayerCount.Online, data.PlayerCount.Max, sample)
 		found++
 		printStatus(fmt.Sprintf("%v:%v | %v", ip, port, data.Motd))
 		record(formatted)
