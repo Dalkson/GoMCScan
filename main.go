@@ -12,11 +12,15 @@ import (
 	"github.com/aherve/gopool"
 )
 
-var threads int
-var timeout int
-var outputPath string
-var addressList []string
-var portList []uint16
+type options struct {
+	threads int
+	timeout int
+	addressList []string
+	portList []uint16
+	outputPath string
+}
+
+var conf options
 
 var pinged int
 var completed int
@@ -27,9 +31,9 @@ var startTime time.Time
 var pool *gopool.GoPool
 
 func main() {
-	getFlags()
+	conf = getFlags()
 	total = totalToSend()
-	pool = gopool.NewPool(threads)
+	pool = gopool.NewPool(conf.threads)
 	fmt.Println("Total to scan:", total)
 	go logLoop(2 * time.Second)
 	loopBlock()
@@ -39,8 +43,8 @@ func main() {
 
 func loopBlock() {
 	startTime = time.Now()
-	for _, port := range portList {
-		for _, address := range addressList {
+	for _, port := range conf.portList {
+		for _, address := range conf.addressList {
 			if !strings.Contains(address, "/") { //puts single addresses in CIDR notation
 				address = fmt.Sprintf("%v/32", address)
 			}
@@ -77,7 +81,7 @@ type formattedOutput struct {
 
 func pingIt(ip string, port uint16) {
 	defer pool.Done()
-	data, _, err := mcping.PingWithTimeout(ip, port, time.Duration(timeout)*time.Second)
+	data, _, err := mcping.PingWithTimeout(ip, port, time.Duration(conf.timeout)*time.Second)
 	completed++ // this is somewhat broken because of concurency
 	if err == nil {
 

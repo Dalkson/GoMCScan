@@ -37,7 +37,7 @@ func printStatus(announce string) {
 func record(dataJSON formattedOutput) {
 	dataBytes, _ := json.Marshal(dataJSON)
 	dataString := string(dataBytes)
-	f, err := os.OpenFile(outputPath,
+	f, err := os.OpenFile(conf.outputPath,
 		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Println(err)
