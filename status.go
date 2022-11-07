@@ -9,11 +9,11 @@ func totalToSend() int {
 	var total int
 	totalAddresses := 0
 	for _, address := range addressList {
-		if !strings.Contains(address, "/") {
+		if !strings.Contains(address, "/") { //puts single addresses in CIDR notation
 			address = fmt.Sprintf("%v/32", address)
 		}
 		addressSuffix := strings.Split(address, "/")
-		switch addressSuffix[1] {
+		switch addressSuffix[1] { // counts total addresses based off CIDR suffix, doesnt check for repeats so nested IP ranges will be counted twice.
 		case "0":
 			totalAddresses = 4294967296
 			total = len(portList) * totalAddresses

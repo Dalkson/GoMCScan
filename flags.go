@@ -26,11 +26,11 @@ func getFlags() {
 	var addressRange string
 	flag.StringVar(&addressRange, "a", "", "IP address range to scan")
 	flag.StringVar(&addressRange, "targets", "", "IP address range to scan")
-	flag.StringVar(&outputDir, "output", "out/scan.log", "output location for scan file")
-	flag.StringVar(&outputDir, "o", "out/scan.log", "output location for scan file")
-	var inputDir string
-	flag.StringVar(&inputDir, "input", "targets.txt", "input location for target file")
-	flag.StringVar(&inputDir, "i", "targets.txt", "input location for target file")
+	flag.StringVar(&outputPath, "output", "out/scan.log", "output location for scan file")
+	flag.StringVar(&outputPath, "o", "out/scan.log", "output location for scan file")
+	var inputPath string
+	flag.StringVar(&inputPath, "input", "targets.txt", "input location for target file")
+	flag.StringVar(&inputPath, "i", "targets.txt", "input location for target file")
 	var portRange string
 	flag.StringVar(&portRange, "p", "25565", "port range to scan")
 	flag.StringVar(&portRange, "port", "25565", "port range to scan")
@@ -38,16 +38,15 @@ func getFlags() {
 	flag.Usage = func() { fmt.Print(usage) }
 	flag.Parse()
 
-	// if input fill is passed, set addressRange to the contents of the file.
-	if isFlagPassed("a") || isFlagPassed("targets") {
+	if isFlagPassed("a") || isFlagPassed("targets") { // if input fill is passed, set addressRange to the contents of the file
 		expandAddress(addressRange)
-	} else if _, err := os.Stat(inputDir); err == nil {
-		b, err := os.ReadFile(inputDir)
+	} else if _, err := os.Stat(inputPath); err == nil { //checks if input file exist, then reads it if it does
+		b, err := os.ReadFile(inputPath)
 		if err != nil {
 			fmt.Print(err)
 		}
 		str := string(b)
-		if str != "" {
+		if str != "" { //checks if input file is empty
 			addressRange = str
 			expandAddress(addressRange)
 		} else {
@@ -60,6 +59,7 @@ func getFlags() {
 	portList = expandPort(portRange)
 }
 
+// Checks if a flag has been passed
 func isFlagPassed(name string) bool {
 	found := false
 	flag.Visit(func(f *flag.Flag) {

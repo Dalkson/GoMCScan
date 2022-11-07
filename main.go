@@ -14,7 +14,7 @@ import (
 
 var threads int
 var timeout int
-var outputDir string
+var outputPath string
 var addressList []string
 var portList []uint16
 
@@ -30,7 +30,6 @@ func main() {
 	getFlags()
 	total = totalToSend()
 	pool = gopool.NewPool(threads)
-	fmt.Println("Scanning ports:", portList)
 	fmt.Println("Total to scan:", total)
 	go logLoop(2 * time.Second)
 	loopBlock()
@@ -42,7 +41,7 @@ func loopBlock() {
 	startTime = time.Now()
 	for _, port := range portList {
 		for _, address := range addressList {
-			if !strings.Contains(address, "/") {
+			if !strings.Contains(address, "/") { //puts single addresses in CIDR notation
 				address = fmt.Sprintf("%v/32", address)
 			}
 			ip, ipnet, err := net.ParseCIDR(address)
@@ -69,9 +68,8 @@ func inc(ip net.IP) {
 
 func pingIt(ip string, port uint16) {
 	defer pool.Done()
-
 	data, _, err := mcping.PingWithTimeout(ip, port, time.Duration(timeout)*time.Second)
-	completed++
+	completed++ // this is somewhat broken because of concurency
 	if err == nil {
 		sampleBytes, _ := json.Marshal(data.Sample)
 		sample := string(sampleBytes)
@@ -82,8 +80,5 @@ func pingIt(ip string, port uint16) {
 		found++
 		printStatus(fmt.Sprintf("%v:%v | %v", ip, port, data.Motd))
 		record(formatted)
-	} else {
-		//fmt.Println(err)
 	}
-
 }
