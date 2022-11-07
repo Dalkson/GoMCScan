@@ -28,8 +28,9 @@ func printStatus(announce string) {
 	elapsedSec := float64(time.Since(startTime).Seconds())
 	findRate := math.Round(float64(found) / float64(elapsedSec))
 	pingRate := math.Round(float64(pinged) / float64(elapsedSec))
-	// fmt.Println(completed, completed+found, pinged, total)
-	fmt.Printf("%v%v | Found: %v at %v/s | Pinged: %v at %v/s | Time: %vm | %v \n", percentage, percent, found, findRate, pinged, pingRate, elapsed, announce)
+	completedRate := math.Round(float64(completed) / float64(elapsedSec))
+	remaining := math.Round((float64(total-completed) / float64(completedRate))/6)/10
+	fmt.Printf("%v%v | Found: %v at %v/s | Pinged: %v at %v/s | Time: %vm, %vm rem | %v \n", percentage, percent, found, findRate, pinged, pingRate, elapsed, remaining, announce)
 }
 
 func record(data string) {
