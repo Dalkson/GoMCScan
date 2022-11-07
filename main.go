@@ -34,7 +34,7 @@ func main() {
 	fmt.Println("Total to scan:", total)
 	go logLoop(2 * time.Second)
 	loopBlock()
-	pool.Wait()	
+	pool.Wait()
 	fmt.Println("Scan Complete!")
 }
 
