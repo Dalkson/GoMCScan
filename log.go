@@ -33,7 +33,7 @@ func printStatus(announce string) {
 }
 
 func record(data string) {
-	f, err := os.OpenFile(outputDir,
+	f, err := os.OpenFile(outputPath,
 		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Println(err)
