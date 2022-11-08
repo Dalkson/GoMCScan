@@ -16,12 +16,12 @@ Options:
 	-p, --ports port range to scan. (25565) Ex: 1337,25565-25570
 	-T, --threads number of threads to use. (1000)
 	-t, --timeout timeout in seconds. (3)
-	-I, --input location for target file. (targets.txt)
+	-i, --input location for target file. (targets.txt)
 	-o, --output output location for scan file. (out/scan.log)
 	-F, --favicon enable saving of favicon images to output directory. (false)
 `
 
-	var config options 
+	var config options
 	flag.IntVar(&config.threads, "T", 1000, "number of threads to use")
 	flag.IntVar(&config.threads, "threads", 1000, "number of threads to use")
 	flag.IntVar(&config.timeout, "t", 1, "timeout in seconds")
