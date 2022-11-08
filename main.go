@@ -18,6 +18,7 @@ type options struct {
 	addressList []string
 	portList []uint16
 	outputPath string
+	saveFavicon bool
 }
 
 type statistics struct {
@@ -37,7 +38,9 @@ func main() {
 	conf = getFlags()
 	stats.total = totalToSend()
 	pool = gopool.NewPool(conf.threads)
+	fmt.Println("MCScan starting. for more information, use -h")
 	fmt.Println("Total to scan:", stats.total)
+	fmt.Println("- - -")
 	go logLoop(2 * time.Second)
 	loopBlock()
 	pool.Wait()
@@ -91,5 +94,10 @@ func pingIt(ip string, port uint16) {
 		printStatus(fmt.Sprintf("%v:%v | %v  online | %v", ip, port, data.PlayerCount.Online, data.Motd))
 		formatted := formattedOutput{time.Now().Format("2006-01-02 15:04:04"), ip+":"+fmt.Sprint(port), data.Version, data.Motd, data.PlayerCount, data.Sample}
 		record(formatted)
+		if conf.saveFavicon {
+			if data.Favicon != "" {
+				saveFavicon(data.Favicon, ip, port)
+			}
+		}
 	}
 }
