@@ -8,8 +8,8 @@ import (
 
 func getFlags() options {
 	// sets help page for MCScan
-const usage = `Usage of MCScan:
-MCScan (-a targets) [-p PortRange] [-T Threads] [-t Timeout] [-o output]
+const usage = `Usage of GoMCScan:
+GoMCScan (-a targets) [-p PortRange] [-T Threads] [-t Timeout] [-o output]
 Options:
 	-h, --help prints help information
 	-a, --targets IP address range to scan. Ex: 116.202.0.0/16,116.203.0.0/16
