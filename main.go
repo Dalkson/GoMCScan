@@ -52,7 +52,7 @@ func loopBlock() {
 			if err != nil {
 				log.Fatal(err)
 			}
-			for ip := ip.Mask(ipnet.Mask); ipnet.Contains(ip); inc(ip) {
+			for ip := ip.Mask(ipnet.Mask); ipnet.Contains(ip); incrementIP(ip) {
 				pool.Add(1)
 				go pingIt(string(net.IP.String(ip)), port)
 				pinged++
@@ -61,7 +61,7 @@ func loopBlock() {
 	}
 }
 
-func inc(ip net.IP) {
+func incrementIP(ip net.IP) {
 	for j := len(ip) - 1; j >= 0; j-- {
 		ip[j]++
 		if ip[j] > 0 {

@@ -23,7 +23,6 @@ func logsleep(tick time.Time, interval time.Duration) {
 }
 
 func printStatus(announce string) {
-	const percent = "%"
 	percentage := math.Round(100 * float64(completed) / float64(total))
 	elapsed := math.Round(time.Since(startTime).Minutes()*10) / 10
 	elapsedSec := float64(time.Since(startTime).Seconds())
@@ -31,7 +30,7 @@ func printStatus(announce string) {
 	pingRate := math.Round(float64(pinged) / float64(elapsedSec))
 	completedRate := math.Round(float64(completed) / float64(elapsedSec))
 	remaining := math.Round((float64(total-completed) / float64(completedRate))/6)/10
-	fmt.Printf("%v%v | Found: %v at %v/s | Pinged: %v at %v/s | Time: %vm, %vm rem | %v \n", percentage, percent, found, findRate, pinged, pingRate, elapsed, remaining, announce)
+	fmt.Printf("%v%% | Found: %v at %v/s | Pinged: %v at %v/s | Time: %vm, %vm rem | %v \n", percentage, found, findRate, pinged, pingRate, elapsed, remaining, announce)
 }
 
 func record(dataJSON formattedOutput) {
