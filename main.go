@@ -84,9 +84,8 @@ func pingIt(ip string, port uint16) {
 	data, _, err := mcping.PingWithTimeout(ip, port, time.Duration(conf.timeout)*time.Second)
 	completed++ // this is somewhat broken because of concurency
 	if err == nil {
-
 		found++ // also would be broken
-		printStatus(fmt.Sprintf("%v:%v | %v", ip, port, data.Motd))
+		printStatus(fmt.Sprintf("%v:%v | %v  online | %v", ip, port, data.PlayerCount.Online, data.Motd))
 		formatted := formattedOutput{time.Now().Format("2006-01-02 15:04:04"), ip+":"+fmt.Sprint(port), data.Version, data.Motd, data.PlayerCount, data.Sample}
 		record(formatted)
 	}
