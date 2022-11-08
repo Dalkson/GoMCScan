@@ -38,7 +38,7 @@ func main() {
 	conf = getFlags()
 	stats.total = totalToSend()
 	pool = gopool.NewPool(conf.threads)
-	fmt.Println("MCScan starting. for more information, use -h")
+	fmt.Println("GoMCScan starting. for more information, use -h")
 	fmt.Println("Total to scan:", stats.total)
 	fmt.Println("- - -")
 	go logLoop(2 * time.Second)
