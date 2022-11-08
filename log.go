@@ -6,6 +6,7 @@ import (
 	"log"
 	"math"
 	"os"
+	"path"
 	"time"
 )
 
@@ -33,13 +34,22 @@ func printStatus(announce string) {
 	fmt.Printf("%v%% | Found: %v at %v/s | Pinged: %v at %v/s | Time: %vm, %vm rem | %v \n", percentage, found, findRate, pinged, pingRate, elapsed, remaining, announce)
 }
 
+var outputExists bool = false
+
 func record(dataJSON formattedOutput) {
+	if !outputExists {
+		_, err := os.Stat(path.Dir(conf.outputPath))
+		if os.IsNotExist(err) {
+			os.Mkdir(path.Dir(conf.outputPath), 0750)
+		}
+		outputExists = true
+	}
 	dataBytes, _ := json.Marshal(dataJSON)
 	dataString := string(dataBytes)
 	f, err := os.OpenFile(conf.outputPath,
 		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		log.Println(err)
+		handleError("Could not open output file")
 	}
 	defer f.Close()
 	if _, err := f.WriteString(dataString + "\n"); err != nil {
