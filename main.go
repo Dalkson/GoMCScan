@@ -84,7 +84,7 @@ func incrementIP(ip net.IP) {
 // formattedOutput holds the output of a successful ping in a formatted way
 type formattedOutput struct {
 	Timestamp string  // the time the ping was sent
-	Ip string  // the IP address and port of the server
+	IP string  // the IP address and port of the server
 	Version string  // the version of the server
 	Motd string   // the message of the day of the server
 	PlayersCount types.PlayerCount  // the number of players online on the server
